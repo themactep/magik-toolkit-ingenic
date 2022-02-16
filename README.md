@@ -10,4 +10,4 @@ magik 开发平台.
 
 4、TransformKit 转换工具.
 
-5、ThirdParty 使用的第三方推理库.
+5、ThirdParty 使用的第三方库..
