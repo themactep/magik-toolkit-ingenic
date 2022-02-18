@@ -116,10 +116,10 @@ def train(hyp,  # path/to/hyp.yaml or hyp dictionary
         #    weights = attempt_download(weights)  # download if not found locally
         ckpt = torch.load(weights, map_location=device)  # load checkpoint
         model = Model(cfg or ckpt['model'].yaml, ch=3, nc=nc, anchors=hyp.get('anchors')).to(device)  # create
-        exclude = ['anchor'] if (cfg or hyp.get('anchors')) and not resume else []  # exclude keys
+        #exclude = ['anchor'] if (cfg or hyp.get('anchors')) and not resume else []  # exclude keys
         state_dict = ckpt['ema' if ckpt.get('ema') else 'model'].float().state_dict()  # to FP32
         #state_dict = ckpt['ema'].float().state_dict()  # to FP32
-        state_dict = intersect_dicts(state_dict, model.state_dict(), exclude=exclude)  # intersect
+        state_dict = intersect_dicts(state_dict, model.state_dict())#, exclude=exclude)  # intersect
         model.load_state_dict(state_dict, strict=True)  # load
         
         logger.info('Transferred %g/%g items from %s' % (len(state_dict), len(model.state_dict()), weights))  # report
