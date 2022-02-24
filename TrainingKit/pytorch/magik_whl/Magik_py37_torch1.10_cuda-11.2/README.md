@@ -1,9 +1,9 @@
 version 1.1.1
 python 3.7
-torch 1.9
+torch 1.10
 cuda cuda-11.2
 cudnn 7.6.5
 gcc 5.5.0
 ubuntu 16.04
 
-commit 6ef67a09fa218f5ff694c63513e944247c9ed896
+commit 655ecb489bccb13dcf69670893e14aac0b13a5af
