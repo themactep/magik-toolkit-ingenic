@@ -110,9 +110,11 @@ int main(int argc, char** argv) {
 
     magik::transformkit::magikexecutor::GraphExecutor graphExecutor(model_path);
     graphExecutor.set_inplace(false);
-
+    
+    std::vector<std::string> input_names = graphExecutor.get_input_names();
+    std::vector<std::string> output_names = graphExecutor.get_output_names();
     Tensor* tensor = new Tensor({1, in_h, in_w, 3}, Tensor::DataType::DT_FLOAT);
-    tensor->set_name("AppendInputOutputNOpOptimizer_input_nop_0");
+    tensor->set_name(input_names[0]);
 
     for (int i = 0; i < tensor->total(); ++i) {
         tensor->mutable_data<float>(i) = (float)image.data[i];
@@ -121,9 +123,8 @@ int main(int argc, char** argv) {
     for (int i = 0; i < 1; ++i) {
         std::cout<<"start inference ....................................................."<<std::endl;
         graphExecutor.work();
-        const Tensor* tensor_res = graphExecutor.get_node_tensor("AppendInputOutputNOpOptimizer_output_nop_0");
-        if (tensor_res == NULL)
-        {
+        const Tensor* tensor_res = graphExecutor.get_node_tensor(output_names[0]);
+        if (tensor_res == NULL) {
             exit(0);
         }
         //tensor_res->total()

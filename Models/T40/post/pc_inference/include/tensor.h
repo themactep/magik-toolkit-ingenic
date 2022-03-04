@@ -77,11 +77,11 @@ public:
         return name_;
     }
 
-    const std::vector<Tensor*>& get_slave_tensors() const;
-    std::vector<Tensor*>& get_mu_slave_tensors();
-    
-    void set_slave_tensors(Tensor*);
-    
+    const std::vector<Tensor *> &get_slave_tensors() const;
+    std::vector<Tensor *> &get_mu_slave_tensors();
+
+    void set_slave_tensors(Tensor *);
+
     template <typename T>
     inline const T &data(int index) const {
         if (total() <= index) {
@@ -202,7 +202,7 @@ private:
     int _get_ele_byte_size(DataType data_type) const;
 
 private:
-    std::vector<Tensor*> slave_tensors_;
+    std::vector<Tensor *> slave_tensors_;
     std::string name_;
     std::vector<int> shape_;
     void *cpu_buffer_;

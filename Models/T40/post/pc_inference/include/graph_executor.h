@@ -54,8 +54,8 @@ public:
     const Tensor *get_node_tensor(const std::string &name) const;
     std::vector<std::string> get_output_names() const;
     std::vector<std::string> get_input_names() const;
-    const Tensor *get_output_tensor(const std::string& name) const;
-    Tensor* get_mutable_output_tensor(const std::string& name) const;
+    const Tensor *get_output_tensor(const std::string &name) const;
+    Tensor *get_mutable_output_tensor(const std::string &name) const;
     std::vector<float> get_node_float_data(const Tensor *tensor) const;
     Tensor *get_mutable_node_tensor(const std::string &name) const;
     const std::vector<Tensor *> &get_node_weights(const std::string &name) const;
