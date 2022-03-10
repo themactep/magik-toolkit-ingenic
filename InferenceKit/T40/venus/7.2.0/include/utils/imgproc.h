@@ -238,9 +238,11 @@ VENUS_API int similar_transform(Tensor &input_src, Tensor &input_dst, Tensor &ou
  * input_src : input tensor, source affine matrix
  * input_dst : input tensor, dst affine matrix
  * output : output tensor, affine transform result matrix
+ * transform_type:0, nv12 to nv12
  * retval : 0, success, <0 failed
  */
-VENUS_API int get_affine_transform(Tensor &input_src, Tensor &input_dst, Tensor &output);
+VENUS_API int get_affine_transform(Tensor &input_src, Tensor &input_dst, Tensor &output,
+                                   TransformType transform_type);
 
 /*********new version**************/
 /*if input chn equal 4, output format must equal input format*/

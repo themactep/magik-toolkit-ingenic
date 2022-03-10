@@ -44,7 +44,12 @@ enum class VENUS_API ChannelLayout : int {
     BGRA = 1,
     RGBA = 2,
     ARGB = 3,
-    RGB = 4
+    RGB = 4,
+    GRAY = 5
+};
+enum class VENUS_API TransformType : int {
+    NONE = -1,
+    NV12_NV12 = 0,
 };
 
 } // namespace venus
