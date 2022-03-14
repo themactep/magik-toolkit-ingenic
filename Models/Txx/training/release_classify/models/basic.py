@@ -9,7 +9,7 @@ import warnings
 from ingenic_magik_trainingkit.QuantizationTrainingPlugin.python import ops
 
 IS_QUANTIZE = 1
-BITW = 4
+BITW = 8
 if BITW==8:
     BITA = 8
     WEIGHT_FACTOR = 3.0
@@ -29,7 +29,7 @@ else:
 TARGET_DEVICE = "Txx"
 
 def preprocess():
-    return ops.Preprocess(target_device = TARGET_DEVICE)
+    return ops.Preprocess(0., 255., target_device = TARGET_DEVICE)
 
 def qConv(in_channels, out_channels, kernel_size=None, stride=1, pad=0, groups=1, dilation=1, bias=False, bn=True, act=False, first=False, last=False):
     assert(groups==1)
@@ -126,7 +126,7 @@ def add(channels):
                         output_bitwidth = BITA,
                         target_device = TARGET_DEVICE)
 
-def adaptiveAvgpool(channels, keepdim = True, last_layer=False):
+def adaptiveAvgpool(channels, keepdim = False, last_layer=False):
     return ops.AdaptiveAvgpool2D(channels,
                                  keepdim = keepdim,
                                  quantize = IS_QUANTIZE,
@@ -134,6 +134,13 @@ def adaptiveAvgpool(channels, keepdim = True, last_layer=False):
                                  output_bitwidth = 32 if last_layer else BITA,
                                  last_layer = last_layer,
                                  target_device = TARGET_DEVICE)
+
+def maxpool2D(kernel_h=2, kernel_w=2, stride=2):
+    return ops.Maxpool2D(kernel_h=kernel_h,
+                         kernel_w=kernel_w,
+                         stride=stride,
+                         padding=0,
+                         target_device = TARGET_DEVICE)
 
 def flatten(shape_list):
     return ops.Flatten(shape_list, target_device = TARGET_DEVICE)

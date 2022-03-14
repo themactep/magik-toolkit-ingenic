@@ -36,11 +36,11 @@ class ConvBNReLU(nn.Sequential):
             norm_layer = nn.BatchNorm2d
         if first:
             super(ConvBNReLU, self).__init__(
-                qConv(in_planes, out_planes, kernel_size, stride=stride, pad=padding, bias=False, bn=True, act=True)
+                qConv(in_planes, out_planes, kernel_size, stride=stride, pad=padding, bias=False, bn=True, act=True, first=first)
             )
         else:
             super(ConvBNReLU, self).__init__(
-                dwConv(in_planes, kernel_size, stride=stride, pad=padding, bias=False, bn=True, act=False),
+                dwConv(in_planes, kernel_size, stride=stride, pad=padding, bias=False, bn=True, act=True),
                 qConv(in_planes, out_planes, 1, stride=1, pad=0, bias=False, bn=True, act=True)
             )
 
@@ -63,7 +63,8 @@ class InvertedResidual(nn.Module):
             layers.append(ConvBNReLU(inp, hidden_dim, kernel_size=1, norm_layer=norm_layer))
         layers.extend([
             # dw
-            ConvBNReLU(hidden_dim, hidden_dim, stride=stride, groups=1, norm_layer=norm_layer),
+            dwConv(hidden_dim, 3, stride=stride, pad=1, bias=False, bn=True, act=True),
+            #ConvBNReLU(hidden_dim, hidden_dim, stride=stride, groups=hidden_dim, norm_layer=norm_layer),
             # pw-linear
             # nn.Conv2d(hidden_dim, oup, 1, 1, 0, bias=False),
             # norm_layer(oup),
@@ -110,11 +111,13 @@ class MobileNetV2(nn.Module):
         input_channel = 32
         last_channel = 512
 
+        self.preprocess = preprocess()
+
         if inverted_residual_setting is None:
             inverted_residual_setting = [
                 # t, c, n, s
                 [1, 16, 1, 1],
-                [2, 24, 2, 2],
+                [2, 32, 2, 2],
                 [2, 32, 3, 2],
                 [2, 64, 4, 2],
                 [2, 96, 3, 1],
@@ -136,7 +139,6 @@ class MobileNetV2(nn.Module):
             output_channel = _make_divisible(c * width_mult, round_nearest)
             for i in range(n):
                 stride = s if i == 0 else 1
-                print (input_channel, output_channel)
                 features.append(block(input_channel, output_channel, stride, expand_ratio=t, norm_layer=norm_layer))
                 input_channel = output_channel
         # building last several layers
@@ -144,7 +146,7 @@ class MobileNetV2(nn.Module):
         # make it nn.Sequential
         self.features = nn.Sequential(*features)
 
-        self.avgpool = adaptiveAvgpool(self.last_channel)
+        self.flatten = flatten([-1, self.last_channel*1*1])
         # building classifier
         self.classifier = nn.Sequential(
             # nn.Dropout(0.2),
@@ -154,21 +156,26 @@ class MobileNetV2(nn.Module):
 
         # weight initialization
         for m in self.modules():
-            if isinstance(m, nn.Conv2d):
-                nn.init.kaiming_normal_(m.weight, mode='fan_out')
-                if m.bias is not None:
-                    nn.init.zeros_(m.bias)
-            elif isinstance(m, (nn.BatchNorm2d, nn.GroupNorm)):
-                nn.init.ones_(m.weight)
-                nn.init.zeros_(m.bias)
-            elif isinstance(m, nn.Linear):
-                nn.init.normal_(m.weight, 0, 0.01)
-                nn.init.zeros_(m.bias)
+            if isinstance(m, ops.Conv2D):
+                nn.init.kaiming_normal_(m.Conv2d.weight, mode='fan_out')
+                if m.Conv2d.bias is not None:
+                    nn.init.zeros_(m.Conv2d.bias)
+                if m.enable_batch_norm:
+                    nn.init.ones_(m.BatchNorm2d.batch_norm.weight)
+                    nn.init.zeros_(m.BatchNorm2d.batch_norm.bias)
+            elif isinstance(m, ops.FullConnected):
+                nn.init.normal_(m.Linear.weight, 0, 0.01)
+                if m.Linear.bias is not None:
+                    nn.init.zeros_(m.Linear.bias)
+                if m.enable_batch_norm:
+                    nn.init.ones_(m.BatchNorm1d.batch_norm.weight)
+                    nn.init.zeros_(m.BatchNorm1d.batch_norm.bias)
 
     def _forward_impl(self, x):
+        x = self.preprocess(x)
         x = self.features(x)
         #x = nn.functional.adaptive_avg_pool2d(x, 1).reshape(x.shape[0], -1)
-        x = self.avgpool(x)
+        x = self.flatten(x)
         x = self.classifier(x)
         return x
 
