@@ -2,4 +2,4 @@
 ###ChangeLog:
 version-0.9.1:
 1. support first layer input_channel > 3 when output_bitwidth is 4;
-
+2. fix oram memory leak problem of concat;
