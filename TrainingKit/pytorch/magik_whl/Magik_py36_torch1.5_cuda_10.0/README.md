@@ -6,4 +6,4 @@ cudnn 7.6.5
 gcc 5.5.0
 ubuntu 16.04
 
-commit 655ecb489bccb13dcf69670893e14aac0b13a5af
+commit 8dd3b7a3631d01729cfea59c91d5be904db6c828

@@ -1,7 +1,7 @@
 version 1.1.1
-python 3.7
-torch 1.6
-cuda cuda_10.2
+python 3.8
+torch 1.7
+cuda cuda_9.0
 cudnn 7.6.5
 gcc 5.5.0
 ubuntu 16.04
