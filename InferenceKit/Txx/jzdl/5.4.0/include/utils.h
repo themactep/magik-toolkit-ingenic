@@ -120,7 +120,7 @@ JZDL_API void rgba2bgr(const Mat<uint8_t> &src, Mat<uint8_t> &dst);
 /*
  * output_parser: parse jzdl inference output result.
  */
-JZDL_API std::vector<Mat<float>> output_parser(Mat<float> &outputs);
+JZDL_API std::vector<Mat<float> > output_parser(Mat<float> &outputs);
 
 /*
  * post-process Sigmoid
