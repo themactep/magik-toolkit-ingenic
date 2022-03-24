@@ -4,3 +4,5 @@ version-0.9.1:
 1. support first layer input_channel > 3 when output_bitwidth is 4;
 2. fix oram memory leak problem of concat;
 3. update concat op; extend act types in fc(bit8) op;
+4. fix bug in mul ops;
+
