@@ -74,8 +74,6 @@ void trans_coords(std::vector<magik::venus::ObjBbox_t> &in_boxes, PixelOffset &p
 
 void generateBBox(std::vector<venus::Tensor> out_res, std::vector<magik::venus::ObjBbox_t>& candidate_boxes, int img_w, int img_h);
 
-void manyclass_nms(std::vector<magik::venus::ObjBbox_t> &input, std::vector<magik::venus::ObjBbox_t> &output, int classnums, int type, float nms_threshold);
-
 int main(int argc, char **argv) {
     /*set*/
     cpu_set_t mask;
@@ -92,8 +90,8 @@ int main(int argc, char **argv) {
         printf("%s model_path w h\n", argv[0]);
         exit(0);
     }
-	int in_w = atoi(argv[2]), in_h = atoi(argv[3]);
 
+	int in_w = atoi(argv[2]), in_h = atoi(argv[3]);
     std::unique_ptr<venus::Tensor> input;
     ret = venus::venus_init();
     if (0 != ret) {
@@ -114,8 +112,7 @@ int main(int argc, char **argv) {
     std::cout << "input shape:" << std::endl;
     printf("-->%d %d \n",in_h, in_w);
     int data_cnt = 1;
-    for (auto i : input->shape()) 
-    {
+    for (auto i : input->shape()) {
         std::cout << i << ",";
         data_cnt *= i;
     }
@@ -129,13 +126,11 @@ int main(int argc, char **argv) {
 #else
 
     int ret = 0;
-    if (argc != 3)
-    {
+    if (argc != 3) {
         printf("%s model_path img_path\n", argv[0]);
         exit(0);
     }
 
-    void *handle = NULL;
     int ori_img_h = -1;
     int ori_img_w = -1;
     float scale = 1.0;
@@ -161,7 +156,7 @@ int main(int argc, char **argv) {
     ori_img_w = image.cols;
     ori_img_h = image.rows;
     printf("w:%d h:%d\n", ori_img_w, ori_img_h);
-    
+
     magik::venus::shape_t temp_inshape;
     temp_inshape.push_back(1);
     temp_inshape.push_back(ori_img_h);
@@ -171,18 +166,12 @@ int main(int argc, char **argv) {
     uint8_t *temp_indata = input_tensor.mudata<uint8_t>();
     int src_size = int(ori_img_h * ori_img_w * 4);
 
-    for (int i = 0; i < src_size-3; i+=4) { // rgba -> alpha channel set zero
-        rgba_img.data[i+3] = 0;
-    }
-
     magik::venus::memcopy((void*)temp_indata, (void*)(rgba_img.data), src_size * sizeof(uint8_t));
-
-    printf("ori_image w,h: %d ,%d \n",ori_img_w,ori_img_h);
+    printf("ori_image w,h: %d ,%d \n",ori_img_w, ori_img_h);
     input = test_net->get_input(0);
     magik::venus::shape_t rgba_input_shape = input->shape();
     printf("model-->%d ,%d %d \n",rgba_input_shape[1], rgba_input_shape[2], rgba_input_shape[3]);
     input->reshape({1, in_h, in_w , 4});
-    uint8_t *indata = input->mudata<uint8_t>();
     std::cout << "input shape:" << std::endl;
     printf("-->%d %d \n",in_h, in_w);
 
@@ -194,8 +183,7 @@ int main(int argc, char **argv) {
     if (valid_dst_w % 2 == 1)
         valid_dst_w = valid_dst_w + 1;
     int valid_dst_h = (int)(scale*ori_img_h);
-    if (valid_dst_h % 2 == 1)
-    {
+    if (valid_dst_h % 2 == 1) {
         valid_dst_h = valid_dst_h + 1;
     }
 
@@ -298,7 +286,7 @@ int main(int argc, char **argv) {
 void generateBBox(std::vector<venus::Tensor> out_res, std::vector<magik::venus::ObjBbox_t>& candidate_boxes, int img_w, int img_h)
 {
   float person_threshold = 0.3;
-  int classes = 80;
+  int classes = 1;
   float nms_threshold = 0.6;
   std::vector<float> strides = {8.0, 16.0, 32.0};
   int box_num = 3;
@@ -306,28 +294,5 @@ void generateBBox(std::vector<venus::Tensor> out_res, std::vector<magik::venus::
 
   std::vector<magik::venus::ObjBbox_t>  temp_boxes;
   venus::generate_box(out_res, strides, anchor, temp_boxes, img_w, img_h, classes, box_num, person_threshold, magik::venus::DetectorType::YOLOV5);
-//  venus::nms(temp_boxes, candidate_boxes, nms_threshold); 
-  manyclass_nms(temp_boxes, candidate_boxes, classes, 0, nms_threshold);
-
+  venus::nms(temp_boxes, candidate_boxes, nms_threshold); 
 }
-
-void manyclass_nms(std::vector<magik::venus::ObjBbox_t> &input, std::vector<magik::venus::ObjBbox_t> &output, int classnums, int type, float nms_threshold) {
-  int box_num = input.size();
-  std::vector<int> merged(box_num, 0);
-  std::vector<magik::venus::ObjBbox_t> classbuf;
-  for (int clsid = 0; clsid < classnums; clsid++) {
-    classbuf.clear();
-    for (int i = 0; i < box_num; i++) {
-      if (merged[i])
-        continue;
-      if(clsid!=input[i].class_id)
-        continue;
-      classbuf.push_back(input[i]);
-      merged[i] = 1;
-
-    }
-    magik::venus::nms(classbuf, output, nms_threshold, magik::venus::NmsType::HARD_NMS);
-  }
-}
-
-

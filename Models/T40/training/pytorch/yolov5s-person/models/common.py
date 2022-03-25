@@ -41,10 +41,7 @@ weight_factor = 3.0
 target_device = "T40"
 cat_modules = ops.Route(target_device = target_device)
 
-if is_quantize == 1:
-    activation_fn = None
-else:
-    activation_fn = nn.ReLU6()
+activation_fn = nn.ReLU6()
 #======================
 
 def autopad(k, p=None):  # kernel, padding

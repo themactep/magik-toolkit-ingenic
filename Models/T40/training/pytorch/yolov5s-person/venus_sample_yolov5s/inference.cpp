@@ -36,10 +36,7 @@
 #include <opencv2/opencv.hpp>
 #endif
 
-
-
 #define IS_ALIGN_64(x) (((size_t)x) & 0x3F)
-
 
 using namespace std;
 using namespace magik::venus;
@@ -115,15 +112,13 @@ int main(int argc, char **argv) {
     std::cout << "input shape:" << std::endl;
     printf("-->%d %d \n",in_h, in_w);
     int data_cnt = 1;
-    for (auto i : input->shape()) 
-    {
+    for (auto i : input->shape()) {
         std::cout << i << ",";
         data_cnt *= i;
     }
     std::cout << std::endl;
 
-    for (int j = 0; j < data_cnt; j++) 
-    {
+    for (int j = 0; j < data_cnt; j++) {
         indata[j] = image[j];
     }
     test_net->run();
@@ -131,13 +126,11 @@ int main(int argc, char **argv) {
 #else
 
     int ret = 0;
-    if (argc != 3)
-    {
+    if (argc != 3) {
         printf("%s model_path img_path\n", argv[0]);
         exit(0);
     }
 
-    void *handle = NULL;
     int ori_img_h = -1;
     int ori_img_w = -1;
     float scale = 1.0;
@@ -156,11 +149,17 @@ int main(int argc, char **argv) {
     std::string model_path = argv[1];
     ret = test_net->load_model(model_path.c_str());
     cv::Mat image;
-    image = cv::imread(argv[2]);
-
+    image = cv::imread(argv[2]); // BGR format
+    
+    cv::Mat rgba_img;
+    cv::cvtColor(image, rgba_img, cv::COLOR_BGR2RGBA);
     ori_img_w = image.cols;
     ori_img_h = image.rows;
     printf("w:%d h:%d\n", ori_img_w, ori_img_h);
+    
+    for (int i = 0; i < src_size-3; i+=4) { // rgba -> alpha channel set zero
+        rgba_img.data[i+3] = 0;
+    }
 
     magik::venus::shape_t temp_inshape;
     temp_inshape.push_back(1);
@@ -170,24 +169,13 @@ int main(int argc, char **argv) {
     venus::Tensor input_tensor(temp_inshape);
     uint8_t *temp_indata = input_tensor.mudata<uint8_t>();
     int src_size = int(ori_img_h * ori_img_w * 4);
-    for(int i = 0; i < ori_img_w * ori_img_h; i++)
-    {
-        for (int j = 0 ; j < 4; j ++)
-        {
-            temp_indata[i*4 + 0] = image.data[i*3 + 0];
-            temp_indata[i*4 + 1] = image.data[i*3 + 1];
-            temp_indata[i*4 + 2] = image.data[i*3 + 2];
-            temp_indata[i*4 + 3] = 0;
-        }
-    }
 
-//  magik::venus::memcopy((void*)tensor_data, (void*)input_src.image, src_size * sizeof(uint8_t));
-    printf("ori_image w,h: %d ,%d \n",ori_img_w,ori_img_h);
+    magik::venus::memcopy((void*)temp_indata, (void*)(rgba_img.data), src_size * sizeof(uint8_t));
+    printf("ori_image w,h: %d ,%d \n",ori_img_w, ori_img_h);
     input = test_net->get_input(0);
     magik::venus::shape_t rgba_input_shape = input->shape();
     printf("model-->%d ,%d %d \n",rgba_input_shape[1], rgba_input_shape[2], rgba_input_shape[3]);
     input->reshape({1, in_h, in_w , 4});
-    uint8_t *indata = input->mudata<uint8_t>();
     std::cout << "input shape:" << std::endl;
     printf("-->%d %d \n",in_h, in_w);
 
@@ -199,8 +187,7 @@ int main(int argc, char **argv) {
     if (valid_dst_w % 2 == 1)
         valid_dst_w = valid_dst_w + 1;
     int valid_dst_h = (int)(scale*ori_img_h);
-    if (valid_dst_h % 2 == 1)
-    {
+    if (valid_dst_h % 2 == 1) {
         valid_dst_h = valid_dst_h + 1;
     }
 
