@@ -6,3 +6,7 @@ version-0.9.1:
 3. update concat op; extend act types in fc(bit8) op;
 4. fix bug in mul ops;
 
+version-0.9.2:
+1. update normalize; update convolution/add
+2. fix bug in model serial/parser;fix bug in normalize layer;update convolution/attention/upsample/pool layer;
+
