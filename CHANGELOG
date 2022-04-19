@@ -9,4 +9,5 @@ version-0.9.1:
 version-0.9.2:
 1. update normalize; update convolution/add
 2. fix bug in model serial/parser;fix bug in normalize layer;update convolution/attention/upsample/pool layer;
+3. fix bug in first convolution;fix bug in upsample(pixel_shuffle);update lstm;
 
