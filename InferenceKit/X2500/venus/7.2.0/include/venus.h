@@ -27,6 +27,8 @@ public:
     virtual int get_forward_memory_size(size_t &memory_size);
     /*memory must be alloced by nmem_memalign, and should be aligned with 64 bytes*/
     virtual int set_forward_memory(void *memory);
+    virtual int free_forward_memory();
+    virtual int free_inputs_memory();
     virtual std::unique_ptr<Tensor> get_input(int index);
     virtual std::unique_ptr<Tensor> get_input_by_name(std::string &name);
     virtual std::vector<std::string> get_input_names();

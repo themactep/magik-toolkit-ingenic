@@ -5,6 +5,8 @@ version-0.9.1:
 2. fix oram memory leak problem of concat;
 3. update concat op; extend act types in fc(bit8) op;
 4. fix bug in mul ops;
+5. fix bug in cache_buf_flush/tensor/get_input;update add;
+6. update upsample to support pad; add member-function to free inputs/outputs memory in network/netbase
 
 version-0.9.2:
 1. update normalize; update convolution/add
