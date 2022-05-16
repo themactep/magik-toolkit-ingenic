@@ -27,8 +27,11 @@ public:
     virtual int get_forward_memory_size(size_t &memory_size);
     /*memory must be alloced by nmem_memalign, and should be aligned with 64 bytes*/
     virtual int set_forward_memory(void *memory);
+    /*free all memory except for input tensors*/
     virtual int free_forward_memory();
+    /*free memory of input tensors*/
     virtual int free_inputs_memory();
+    virtual void set_profiler_per_frame(bool status = false);
     virtual std::unique_ptr<Tensor> get_input(int index);
     virtual std::unique_ptr<Tensor> get_input_by_name(std::string &name);
     virtual std::vector<std::string> get_input_names();
@@ -45,8 +48,10 @@ public:
  */
 VENUS_API std::unique_ptr<BaseNet> net_create(TensorFormat input_data_fmt = TensorFormat::NHWC,
                                               ShareMemoryMode smem_mode = ShareMemoryMode::DEFAULT);
-VENUS_API int venus_init(void);
+VENUS_API int venus_init(int size = 0);
 VENUS_API int venus_deinit(void);
+VENUS_API int venus_lock();
+VENUS_API int venus_unlock();
 VENUS_API uint32_t venus_get_version_info();
 } // namespace venus
 } // namespace magik
