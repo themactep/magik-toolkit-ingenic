@@ -11,6 +11,7 @@
 
 #ifndef __MAGIK_INFERENCEKIT_VENUS_INCLUDE_VENUS_H__
 #define __MAGIK_INFERENCEKIT_VENUS_INCLUDE_VENUS_H__
+#include "common/common_inf.h"
 #include "core/tensor.h"
 #include "core/type.h"
 #include "utils/all.h"
@@ -48,8 +49,6 @@ public:
  */
 VENUS_API std::unique_ptr<BaseNet> net_create(TensorFormat input_data_fmt = TensorFormat::NHWC,
                                               ShareMemoryMode smem_mode = ShareMemoryMode::DEFAULT);
-VENUS_API int venus_init(int size = 0);
-VENUS_API int venus_deinit(void);
 VENUS_API int venus_lock();
 VENUS_API int venus_unlock();
 VENUS_API uint32_t venus_get_version_info();
