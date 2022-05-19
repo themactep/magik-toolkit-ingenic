@@ -1,0 +1,14 @@
+../../../../../TransformKit/magik-transform-tools \
+--framework onnx \
+--target_device X2500 \
+--outputpath ./venus_sample_ptq_yolov5s/yolov5s_magik.mk.h \
+--inputpath ../../../yolov5s/yolov5s.onnx \
+--mean 0,0,0 \
+--var 255.0,255.0,255.0 \
+--img_width 640 \
+--img_height 640 \
+--img_channel 3 \
+--input_nodes images \
+--output_nodes 640,660,680 \
+--post_training_quantization true \
+--ptq_config_path ptq_yolov5_config.json
